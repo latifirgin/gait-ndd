@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Veri: ham ve işlenmiş veriler repoya girmez (herkes run_step1.py ile üretir)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+# İSTİSNA: folds.csv tüm ekip için TEK bölmedir, commit edilir
+!data/processed/folds.csv
+
+# Sonuçlar: küçük CSV/figürler commit edilir (K1 kıyas tablosu bunları okur),
+# eğitilmiş model dosyaları commit edilmez
+results/*
+!results/.gitkeep
+!results/metrics/
+!results/predictions/
+!results/tables/
+!results/figures/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.env
+team.env

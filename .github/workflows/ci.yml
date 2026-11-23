@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Kurulum
+        run: pip install -e ".[dev]"
+      - name: Lint (ruff)
+        run: ruff check src scripts tests app
+      - name: Testler
+        run: pytest -q
+      - name: Sabit sayı / rastgele bölme taraması
+        run: |
+          if grep -rnE "train_test_split|KFold\(|cross_val_score\(.*cv=[0-9]" src scripts app | grep -v "StratifiedGroupKFold"; then
+            echo "::error::Rastgele bölme tespit edildi. Yalnızca folds.csv + iter_folds kullanın."; exit 1; fi

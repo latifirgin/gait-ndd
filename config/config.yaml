@@ -1,0 +1,148 @@
+# =============================================================================
+# Tüm proje parametreleri. Kodda sabit sayı YOK; değişiklik yalnızca burada + PR.
+# =============================================================================
+project:
+  seed: 42
+
+# ---------------------------------------------------------------- Adım 1: veri
+data:
+  dataset: gaitndd
+  version: "1.0.0"
+  # İlk çalışan adres kullanılır (S3 aynası PhysioNet'in yönlendirdiği yerdir)
+  base_urls:
+    - https://physionet-open.s3.amazonaws.com/gaitndd/1.0.0/
+    - https://physionet.org/files/gaitndd/1.0.0/
+  raw_dir: data/raw/gaitndd
+  timeout_s: 30
+  retries: 2
+  # Gerçek veri yoksa sentetik veri üret (yalnızca test/geliştirme; rapora GİRMEZ)
+  allow_synthetic_fallback: true
+  # Dosya öneki → sınıf adı. Sıra = tamsayı etiket (0..3)
+  groups:
+    control: 16
+    park: 15
+    hunt: 20
+    als: 13
+  # .ts sütunları (sütun 1 = elapsed_time; geri kalan 12 kanal modele girer)
+  time_column: elapsed_time
+  channels:
+    - stride_l
+    - stride_r
+    - swing_l
+    - swing_r
+    - swing_pct_l
+    - swing_pct_r
+    - stance_l
+    - stance_r
+    - stance_pct_l
+    - stance_pct_r
+    - dsupport
+    - dsupport_pct
+
+synthetic:
+  duration_s: 300
+  turn_outlier_rate: 0.015      # koridor dönüşü benzeri aykırı adım oranı
+  turn_outlier_scale: [1.4, 2.2] # aykırı adımın süre çarpanı aralığı
+  lr_correlation: 0.8           # sol/sağ adım süresi korelasyonu
+  ar_coef: 0.5                  # adım süresinde zamansal bağımlılık (AR(1))
+  pct_noise_sd: 1.0             # salınım/çift destek yüzdesi adım-adım gürültü SD (puan)
+  synthetic_dir: data/raw/synthetic
+  # sınıf başına: ortalama adım süresi (s), CoV, salınım %, çift destek %
+  classes:
+    control: {stride_mean: 1.10, stride_cov: 0.020, swing_pct: 37.5, dsupport_pct: 25.0}
+    park:    {stride_mean: 1.15, stride_cov: 0.030, swing_pct: 35.5, dsupport_pct: 29.0}
+    hunt:    {stride_mean: 1.20, stride_cov: 0.065, swing_pct: 34.5, dsupport_pct: 31.0}
+    als:     {stride_mean: 1.40, stride_cov: 0.045, swing_pct: 33.0, dsupport_pct: 34.0}
+  between_subject_sd: 0.06      # denekler arası ortalama adım süresi oransal sapması
+
+preprocessing:
+  trim_start_s: 20              # ilk 20 s (yürüyüşe başlama geçişi) atılır
+  stride_min_s: 0.5             # fizyolojik alt sınır
+  stride_max_s: 3.0             # fizyolojik üst sınır
+  outlier_channels: [stride_l, stride_r]   # IQR yalnızca adım süresi kanallarında
+  iqr_k: 3.0                    # k=1.5 gerçek değişkenliği (hastalık belirtecini) siliyordu
+  min_valid_steps: 64           # temizlik sonrası bundan az adımı kalan denek atılır
+  filter:
+    order: 2
+    cutoff: 0.35                # normalize kesim (Nyquist=1); örnekleme ekseni = adım indeksi
+
+windowing:
+  length: 32                    # adım
+  overlap: 0.5
+
+output:
+  processed_dir: data/processed
+  windows_file: windows.npz
+  windows_meta_file: windows_meta.csv
+  step_table_file: steps_clean.parquet
+
+# ------------------------------------------------------- Değerlendirme (K1)
+evaluation:
+  n_splits: 5
+  inner_n_splits: 3
+  seed: 42
+  classes: [control, park, hunt, als]
+  class_display_names: [Kontrol, Parkinson, Huntington, ALS]
+  subject_aggregation: mean_proba
+  min_test_subjects_per_class: 2
+  suspicious_accuracy: 0.95
+  proba_atol: 1.0e-6
+  dummy_strategy: prior
+  paths:
+    windows: data/processed/windows.npz
+    folds: data/processed/folds.csv
+    metrics_dir: results/metrics
+    predictions_dir: results/predictions
+    figures_dir: results/figures
+    tables_dir: results/tables
+  figures:
+    dpi: 300
+    format: png
+    confusion_normalize: "true"
+    figsize: [6.5, 5.5]
+
+# ------------------------------------------------------ Adım 2: özellikler (K2)
+features:
+  input: X_clean                # CoV'yi korumak için filtresiz seri; X_filt ile ablation yapılabilir
+  time_domain: [mean, std, rms, var, cov]
+  asymmetry_pairs:              # |L-R| / (0.5*(L+R)) * 100
+    - [stride_l, stride_r]
+    - [swing_l, swing_r]
+    - [stance_l, stance_r]
+  freq_domain: [dominant_freq, spectral_entropy]
+  detrend: constant             # FFT öncesi ortalama çıkarılır
+  output_file: data/processed/features.parquet
+
+# ------------------------------------------------- Adım 3: klasik modeller (K3)
+classical:
+  scoring: f1_macro
+  class_weight: balanced
+  models:
+    rf:
+      n_estimators: [200, 500]
+      max_depth: [null, 5, 10]
+      min_samples_leaf: [1, 3, 5]
+      max_features: [sqrt, 0.3]
+    svm:
+      C: [0.1, 1, 10]
+      gamma: [scale, 0.01, 0.1]
+      kernel: [rbf]
+    knn:
+      n_neighbors: [3, 5, 9, 15]
+      weights: [uniform, distance]
+  model_dir: results/models
+
+# ------------------------------------------------------ Adım 4: LSTM + SHAP (K4)
+lstm:
+  input: X_filt
+  units: [64, 32]
+  dropout: 0.3
+  learning_rate: 1.0e-3
+  batch_size: 32
+  epochs: 100
+  early_stopping_patience: 10
+  validation_subject_fraction: 0.2   # erken durdurma için eğitim fold'undan DENEK ayrılır
+
+shap:
+  background_size: 100
+  max_display: 15
