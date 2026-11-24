@@ -2,13 +2,13 @@
 
 **Başlangıç** 23 Kas 2026 · **Ara entegrasyon** 1 Ara · **Kod dondurma** 6 Ara · **Teslim** 12 Ara 2026
 
-| Kişi | Rol | Teslimat | Tarih | Görev |
-|---|---|---|---|---|
-| K1 | Lider, veri, değerlendirme, rapor editörü | `windows.npz`, `folds.csv`, `evaluate()`, grafikler, kıyas tablosu | 24 Kas | [K1](tasks/K1.md) |
-| K2 | Özellik mühendisi | `features.parquet`, `docs/features.md` | 30 Kas | [K2](tasks/K2.md) |
-| K3 | Klasik ML | RF/SVM/KNN metrikleri, önem grafiği, `predict()` | 5 Ara | [K3](tasks/K3.md) |
-| K4 | Derin öğrenme + XAI | LSTM metrikleri, SHAP grafikleri | 5 Ara | [K4](tasks/K4.md) |
-| K5 | Demo + sunum | Streamlit (6 Ara), slaytlar (9 Ara) | 6 / 9 Ara | [K5](tasks/K5.md) |
+| Kişi | İsim | Rol | Teslimat | Tarih | Görev |
+|---|---|---|---|---|---|
+| K1 | Latif | Lider, veri, değerlendirme, rapor editörü | `windows.npz`, `folds.csv`, `evaluate()`, grafikler, kıyas tablosu | 24 Kas | [K1](tasks/K1.md) |
+| K2 | Süleyman | Özellik mühendisi | `features.parquet`, `docs/features.md` | 30 Kas | [K2](tasks/K2.md) |
+| K3 | Serhat | Klasik ML | RF/SVM/KNN metrikleri, önem grafiği, `predict()` | 5 Ara | [K3](tasks/K3.md) |
+| K4 | Ahmet | Derin öğrenme + XAI | LSTM metrikleri, SHAP grafikleri | 5 Ara | [K4](tasks/K4.md) |
+| K5 | Halil | Demo + sunum | Streamlit (6 Ara), slaytlar (9 Ara) | 6 / 9 Ara | [K5](tasks/K5.md) |
 
 ## Bağımlılık grafiği
 
