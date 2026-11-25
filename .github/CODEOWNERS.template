@@ -1,18 +1,18 @@
-# scripts/setup_github.sh bu dosyadan .github/CODEOWNERS üretir (<K1>.. yerine kullanıcı adları).
+# 2 kişilik ekip: <K1> = Latif, <K3> = Serhat. setup_github.sh bu dosyadan .github/CODEOWNERS üretir.
 # Bir dosyaya dokunan PR, o alanın sahibinden onay ister.
 *                               @<K1>
 /config/                        @<K1>
 /src/gait/data/                 @<K1>
 /src/gait/preprocessing/        @<K1>
 /src/gait/evaluation/           @<K1>
-/src/gait/features/             @<K2>
-/docs/features.md               @<K2>
+/src/gait/features/             @<K1>
+/docs/features.md               @<K1>
 /src/gait/models/classical.py   @<K3>
-/src/gait/models/predict.py     @<K3> @<K5>
-/src/gait/models/lstm.py        @<K4>
-/src/gait/explain/              @<K4>
-/app/                           @<K5>
-/tests/test_contract_k2*        @<K1> @<K2>
+/src/gait/models/predict.py     @<K3> @<K1>
+/src/gait/models/lstm.py        @<K3>
+/src/gait/explain/              @<K3>
+/app/                           @<K1>
+/tests/test_contract_k2*        @<K1> @<K3>
 /tests/test_contract_k3*        @<K1> @<K3>
-/tests/test_contract_k4*        @<K1> @<K4>
-/tests/test_contract_k5*        @<K1> @<K5>
+/tests/test_contract_k4*        @<K1> @<K3>
+/tests/test_contract_k5*        @<K1> @<K3>
