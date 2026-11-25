@@ -1,0 +1,18 @@
+# 2 kişilik ekip: latifirgin = Latif, sero3437 = Serhat. setup_github.sh bu dosyadan .github/CODEOWNERS üretir.
+# Bir dosyaya dokunan PR, o alanın sahibinden onay ister.
+*                               @latifirgin
+/config/                        @latifirgin
+/src/gait/data/                 @latifirgin
+/src/gait/preprocessing/        @latifirgin
+/src/gait/evaluation/           @latifirgin
+/src/gait/features/             @latifirgin
+/docs/features.md               @latifirgin
+/src/gait/models/classical.py   @sero3437
+/src/gait/models/predict.py     @sero3437 @latifirgin
+/src/gait/models/lstm.py        @sero3437
+/src/gait/explain/              @sero3437
+/app/                           @latifirgin
+/tests/test_contract_k2*        @latifirgin @sero3437
+/tests/test_contract_k3*        @latifirgin @sero3437
+/tests/test_contract_k4*        @latifirgin @sero3437
+/tests/test_contract_k5*        @latifirgin @sero3437
